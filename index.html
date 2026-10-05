@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Proyecto Mateo</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #eef2f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .contenedor {
+            max-width: 600px;
+            margin: auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .subtitulo {
+            text-align: center;
+            color: #666;
+        }
+
+        .formulario {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+
+        label {
+            display: block;
+            margin-top: 12px;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 16px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 7px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .registrar {
+            background: #333;
+        }
+
+        .buscar {
+            background: #555;
+        }
+
+        .eliminar {
+            background: #888;
+        }
+
+        #resultado {
+            margin-top: 20px;
+        }
+
+        .registro {
+            background: #f8f8f8;
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border-left: 5px solid #333;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="contenedor">
+
+    <h1>PROYECTO MATEO</h1>
+
+    <p class="subtitulo">
+        Sistema de registro de citas
+    </p>
+
+    <div class="formulario">
+
+        <label>Nombre</label>
+        <input type="text" id="nombre">
+
+        <label>Correo electrónico</label>
+        <input type="email" id="correo">
+
+        <label>Especialidad</label>
+        <input type="text" id="especialidad">
+
+        <label>Grupo</label>
+        <input type="text" id="grupo">
+
+        <label>Motivo</label>
+        <input type="text" id="motivo">
+
+        <label>Fecha</label>
+        <input type="date" id="fecha">
+
+        <label>Hora</label>
+        <input type="time" id="hora">
+
+        <button class="registrar" onclick="registrarCita()">
+            REGISTRAR CITA
+        </button>
+
+        <button class="buscar" onclick="buscarCita()">
+            BUSCAR CITA
+        </button>
+
+        <button class="eliminar" onclick="eliminarCita()">
+            ELIMINAR CITA
+        </button>
+
+        <div id="resultado"></div>
+
+    </div>
+
+</div>
+
+<script>
+
+let citas = JSON.parse(
+    localStorage.getItem("citasProyectoMateo")
+) || [];
+
+
+function registrarCita() {
+
+    let nombre = document.getElementById("nombre").value;
+    let correo = document.getElementById("correo").value;
+    let especialidad = document.getElementById("especialidad").value;
+    let grupo = document.getElementById("grupo").value;
+    let motivo = document.getElementById("motivo").value;
+    let fecha = document.getElementById("fecha").value;
+    let hora = document.getElementById("hora").value;
+
+    if (
+        !nombre ||
+        !correo ||
+        !especialidad ||
+        !grupo ||
+        !motivo ||
+        !fecha ||
+        !hora
+    ) {
+        alert("Completa todos los campos.");
+        return;
+    }
+
+    let folio = "MATEO-" + new Date().getTime();
+
+    let cita = {
+        folio: folio,
+        nombre: nombre,
+        correo: correo,
+        especialidad: especialidad,
+        grupo: grupo,
+        motivo: motivo,
+        fecha: fecha,
+        hora: hora
+    };
+
+    citas.push(cita);
+
+    localStorage.setItem(
+        "citasProyectoMateo",
+        JSON.stringify(citas)
+    );
+
+    alert(
+        "Cita confirmada\n\n" +
+        "Folio: " + folio +
+        "\nNombre: " + nombre
+    );
+
+    document.getElementById("nombre").value = "";
+    document.getElementById("correo").value = "";
+    document.getElementById("especialidad").value = "";
+    document.getElementById("grupo").value = "";
+    document.getElementById("motivo").value = "";
+}
+
+
+function buscarCita() {
+
+    let termino = prompt(
+        "Escribe el folio o nombre:"
+    );
+
+    if (!termino) {
+        return;
+    }
+
+    termino = termino.toLowerCase();
+
+    let encontrados = citas.filter(cita =>
+        cita.folio.toLowerCase().includes(termino) ||
+        cita.nombre.toLowerCase().includes(termino)
+    );
+
+    let resultado = document.getElementById("resultado");
+
+    if (encontrados.length === 0) {
+
+        resultado.innerHTML =
+            "<p>No se encontraron citas.</p>";
+
+        return;
+    }
+
+    resultado.innerHTML = "";
+
+    encontrados.forEach(cita => {
+
+        resultado.innerHTML += `
+            <div class="registro">
+
+                <strong>Folio:</strong> ${cita.folio}<br>
+                <strong>Nombre:</strong> ${cita.nombre}<br>
+                <strong>Correo:</strong> ${cita.correo}<br>
+                <strong>Especialidad:</strong> ${cita.especialidad}<br>
+                <strong>Grupo:</strong> ${cita.grupo}<br>
+                <strong>Motivo:</strong> ${cita.motivo}<br>
+                <strong>Fecha:</strong> ${cita.fecha}<br>
+                <strong>Hora:</strong> ${cita.hora}
+
+            </div>
+        `;
+
+    });
+}
+
+
+function eliminarCita() {
+
+    let folio = prompt(
+        "Escribe el folio de la cita:"
+    );
+
+    if (!folio) {
+        return;
+    }
+
+    let cantidadAnterior = citas.length;
+
+    citas = citas.filter(
+        cita =>
+        cita.folio.toLowerCase() !== folio.toLowerCase()
+    );
+
+    if (citas.length < cantidadAnterior) {
+
+        localStorage.setItem(
+            "citasProyectoMateo",
+            JSON.stringify(citas)
+        );
+
+        alert("Cita eliminada correctamente.");
+
+    } else {
+
+        alert("No existe una cita con ese folio.");
+
+    }
+}
+
+</script>
+
+</body>
+</html>
